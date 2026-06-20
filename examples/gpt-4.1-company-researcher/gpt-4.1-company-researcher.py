@@ -3,7 +3,7 @@ import json
 import time
 import requests
 from dotenv import load_dotenv
-from serpapi.google_search import GoogleSearch
+import serpapi
 from openai import OpenAI
 
 # ANSI color codes
@@ -46,7 +46,6 @@ def search_google(query, company):
     
     params = {
         "q": search_query,
-        "api_key": serp_api_key,
         "engine": "google",
         "google_domain": "google.com",
         "gl": "us",
@@ -55,8 +54,8 @@ def search_google(query, company):
     }
     
     try:
-        search = GoogleSearch(params)
-        results = search.get_dict()
+        client = serpapi.Client(api_key=serp_api_key)
+        results = client.search(params)
         
         if "error" in results:
             print(f"{Colors.RED}SerpAPI Error: {results['error']}{Colors.RESET}")
@@ -71,8 +70,7 @@ def search_google(query, company):
             alt_params["q"] = company
             
             try:
-                alt_search = GoogleSearch(alt_params)
-                alt_results = alt_search.get_dict()
+                alt_results = client.search(alt_params)
                 
                 if "error" not in alt_results:
                     organic_results = alt_results.get("organic_results", [])
